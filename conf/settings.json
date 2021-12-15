@@ -1,0 +1,25 @@
+{
+    "redis":{
+        "host":"127.0.0.1:6379",
+        "password":"foobared",
+        "db":0,
+        "event":"rename_to"
+    },
+
+    "leveldb":{
+        "dbname":"./data/redis_mirror"
+    },
+
+    "manager":{
+        "addr":"0.0.0.0:3580"
+    },
+
+    "log":{
+        "file":"./land1.log",
+        "level":2
+    },
+
+    "agent":{
+        "addr":"0.0.0.0:5200"
+    }
+}
