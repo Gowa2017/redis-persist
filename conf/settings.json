@@ -3,7 +3,7 @@
         "host":"127.0.0.1:6379",
         "password":"foobared",
         "db":0,
-        "event":"rename_to"
+        "event":"hset"
     },
 
     "leveldb":{
