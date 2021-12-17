@@ -1,25 +1,23 @@
 {
-    "redis":{
-        "host":"127.0.0.1:6379",
-        "password":"foobared",
-        "db":0,
-        "event":"hset"
+    "redis": {
+        "host": "127.0.0.1:6379",
+        "password": "foobared",
+        "db": 0,
+        "NotificationConfig": "hE",
+        "event": "hset",
+        "Expire": true
     },
-
-    "leveldb":{
-        "dbname":"./data/redis_mirror"
+    "leveldb": {
+        "dbname": "./data/redis_mirror"
     },
-
-    "manager":{
-        "addr":"0.0.0.0:3580"
+    "manager": {
+        "addr": "0.0.0.0:3580"
     },
-
-    "log":{
-        "file":"./land1.log",
-        "level":2
+    "log": {
+        "file": "./log/log.log",
+        "level": 2
     },
-
-    "agent":{
-        "addr":"0.0.0.0:5200"
+    "agent": {
+        "addr": "0.0.0.0:5200"
     }
 }

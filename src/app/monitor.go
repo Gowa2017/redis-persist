@@ -126,7 +126,6 @@ func (m *Monitor) Stop() {
 // It will put the to sync data to sync_queue
 func NewMonitor() *Monitor {
 	cli := redis.NewRedis(setting.Redis.Host, setting.Redis.Password, setting.Redis.Db)
-	notification_config := "ghE"
 	event := fmt.Sprintf("__keyevent@%d__:%s", setting.Redis.Db, setting.Redis.Event)
-	return &Monitor{cli, notification_config, event, 0, false, make(chan int)}
+	return &Monitor{cli, setting.Redis.NotificationConfig, event, 0, false, make(chan int)}
 }
