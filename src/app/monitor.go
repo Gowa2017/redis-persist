@@ -8,11 +8,12 @@ import (
 	"src/src/redis"
 )
 
+// Subscribe to redis , and receive notifies
 type Monitor struct {
-	cli                 *redis.Redis
-	notification_config string
-	event               string
-	qlen                int
+	cli                 *redis.Redis // redis client
+	notification_config string       // notification config to be set on server
+	event               string       // subscribe event
+	qlen                int          // queue  length
 	quit_flag           bool
 	quit_chan           chan int
 }
@@ -67,6 +68,8 @@ func (m *Monitor) reconnect() bool {
 	return true
 }
 
+// In a endless loop, wait for the redis's notify,
+// then put the key to the sync queue, storemanager will use it.
 func (m *Monitor) Start(queue chan string) {
 	err := m.cli.Connect()
 	if err != nil {

@@ -14,12 +14,12 @@ type Redis struct {
 	addr     string
 	password string
 	db       int
-	conn     net.Conn
+	conn     net.Conn // connection to redis server
 }
 
-var UnsupportedArgType = errors.New("unsupported arg type")
-var MalformedResponse = errors.New("malformed response")
-var NoConnection = errors.New("no connection")
+var ErrUnsupportedArgType = errors.New("unsupported arg type")
+var ErrMalformedResponse = errors.New("malformed response")
+var ErrNoConnection = errors.New("no connection")
 
 func composeMessage(cmd string, args []interface{}) ([]byte, error) {
 	var buf bytes.Buffer
@@ -32,7 +32,7 @@ func composeMessage(cmd string, args []interface{}) ([]byte, error) {
 		} else if str, ok := arg.(int); ok {
 			v = strconv.Itoa(str)
 		} else {
-			return nil, UnsupportedArgType
+			return nil, ErrUnsupportedArgType
 		}
 
 		fmt.Fprintf(&buf, "$%d\r\n%s\r\n", len(v), v)
@@ -105,13 +105,13 @@ func readResponse(reader *bufio.Reader) (interface{}, error) {
 				ret[i] = s
 			} else {
 				log.Printf("unexpected response(*): %s", nextline)
-				return nil, MalformedResponse
+				return nil, ErrMalformedResponse
 			}
 		}
 		return ret, nil
 	}
 	log.Printf("unexpected response():%s", line)
-	return nil, MalformedResponse
+	return nil, ErrMalformedResponse
 }
 
 // for pub/sub, don't call it directly
@@ -120,9 +120,10 @@ func (r *Redis) ReadResponse() (interface{}, error) {
 	return readResponse(reader)
 }
 
+// exec command
 func (r *Redis) exec(cmd string, args []interface{}) (interface{}, error) {
 	if r.conn == nil {
-		return nil, NoConnection
+		return nil, ErrNoConnection
 	}
 
 	data, err := composeMessage(cmd, args)
@@ -138,6 +139,7 @@ func (r *Redis) exec(cmd string, args []interface{}) (interface{}, error) {
 	return readResponse(reader)
 }
 
+// hget a key
 func (r *Redis) Hget(key string, subkey string) (resp string, err error) {
 	result, err := r.Exec("hget", key, subkey)
 	if err != nil {
@@ -151,6 +153,7 @@ func (r *Redis) Exec(cmd string, args ...interface{}) (interface{}, error) {
 	return r.exec(cmd, args)
 }
 
+// hgetnall command to a map
 func (r *Redis) Hgetall(key string, obj map[string]string) (err error) {
 	resp, err := r.Exec("hgetall", key)
 	if err != nil {
@@ -167,6 +170,7 @@ func (r *Redis) Hgetall(key string, obj map[string]string) (err error) {
 	return
 }
 
+// hgetall command to a list
 func (r *Redis) Hgetall_arr(key string) (resp []string, err error) {
 	t, err := r.Exec("hgetall", key)
 	if err != nil {
@@ -177,6 +181,7 @@ func (r *Redis) Hgetall_arr(key string) (resp []string, err error) {
 	return
 }
 
+// Get a type of key, run command type
 func (r *Redis) Type(key string) (name string, err error) {
 	resp, err := r.Exec("type", key)
 	if err != nil {
@@ -186,6 +191,7 @@ func (r *Redis) Type(key string) (name string, err error) {
 	return
 }
 
+// Connect to redis server
 func (r *Redis) Connect() (err error) {
 	log.Printf("connect to redis:%s", r.addr)
 
@@ -221,7 +227,7 @@ func (r *Redis) ReConnect() error {
 	return r.Connect()
 }
 
-// new function
+// Construct a new Redis struct
 func NewRedis(addr string, password string, db int) *Redis {
 	return &Redis{addr: addr, password: password, db: db}
 }

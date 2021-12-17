@@ -12,6 +12,7 @@ import (
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
+// Use to read data from redis, and save to leveldb
 type Storer struct {
 	cli *redis.Redis
 	db  *leveldb.DB
@@ -60,6 +61,7 @@ func (s *Storer) expire(key string, resp map[string]string) {
 	}
 }
 
+// Save to leveldb with format {indexkey, version} {key, jsonstring}
 func (s *Storer) save(key string) {
 	name, err := s.cli.Type(key)
 	if err != nil {
@@ -126,8 +128,8 @@ func NewStorer(db *leveldb.DB) *Storer {
 }
 
 type StorerMgr struct {
-	instances []*Storer
-	queues    []chan string
+	instances []*Storer     // list of storer
+	queues    []chan string // list of storer's queues
 	wg        sync.WaitGroup
 }
 
@@ -139,6 +141,7 @@ func _hash(str string) int {
 	return h
 }
 
+// Read from monitor's queue, and put it to the storer's queues by hash
 func (m *StorerMgr) Start(queue chan string) {
 	m.wg.Add(1)
 	defer m.wg.Done()
