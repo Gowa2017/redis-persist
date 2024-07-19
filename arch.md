@@ -1,5 +1,6 @@
+```plantuml
 @startuml RP
-!include C4_Dynamic.puml
+!include <C4/C4_Dynamic>
 Person(user, "Mantainer")
 Container_Ext(redis, "Redis Server", "Redis")
 Container_Ext(skynet, "Skynet", "C/Lua")
@@ -25,3 +26,4 @@ Rel_L(context, redis, "read")
 Rel_U(context, queue, "sync")
 ' Lay_L(context, storer)
 @enduml
+```
